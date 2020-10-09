@@ -1,0 +1,105 @@
+// filesystem.cc
+
+#include <dt/system/filesystem/directory.hh>
+#include <dt/system/filesystem.hh>
+
+#include <dt/util/system.hh>
+
+#include <filesystem>
+#include <fstream>
+#include <optional>
+#include <string>
+#include <string_view>
+
+namespace dt {
+
+namespace fs = ::std::filesystem;
+
+}
+
+std::string dt::filesystem::_eval_root_dir_path(command const& c) const {
+  fs::path root{};
+
+  // Determine root directory location
+  if (auto const opt_custom_dir = c.cmdflag_value(flag_id::root_directory_location); opt_custom_dir) {
+    root /= opt_custom_dir.value();
+
+  } else if (system_os == os::windows) {
+    if (auto const opt_appdata = c.evar_value("LOCALAPPDATA"); opt_appdata) {
+      root /= opt_appdata.value();
+      root /= "Programs";
+    }
+
+  } else if (auto const opt_home_dir = c.evar_value("HOME"); opt_home_dir) {
+    root /= opt_home_dir.value();
+
+  }
+
+  // Determine root directory name
+  if (auto const opt_custom_name = c.cmdflag_value(flag_id::root_directory_name); opt_custom_name) {
+    root /= opt_custom_name.value();
+
+  } else if (system_os == os::windows) {
+    root /= "Deltatron";
+
+  } else {
+    root /= ".deltatron";
+
+  }
+
+  fs::create_directories(root);
+
+  return root.string();
+} // _eval_root_dir_path
+
+
+namespace dt {
+
+static fs::path _pathapp(std::string const& base, std::string const& app) noexcept {
+  return fs::path(base) /= app;
+}
+
+}
+
+dt::directory::directory(std::string const& path, directory const* parent) noexcept
+: _path(path),
+  _parent(parent) {}
+
+dt::directory dt::directory::operator()(std::string name) const {
+  using namespace ::std::string_literals;
+
+  fs::path p(_pathapp(_path, name));
+
+  if (!fs::exists(p))
+    fs::create_directory(p);
+
+  else if (!fs::is_directory(p))
+    throw std::runtime_error(name + ": not a directory");
+
+  return directory(p.string(), this);
+}
+
+std::optional<std::string> dt::directory::fload(std::string name) const {
+  if (std::ifstream ifs(_pathapp(_path, name), std::ios::binary | std::ios::ate); ifs.is_open()) {
+    auto const ifs_sz = std::ifstream::pos_type(ifs.tellg());
+    auto       fdata  = std::string(static_cast<std::string::size_type>(ifs_sz), 0);
+
+    ifs.seekg(0);
+    ifs.read(fdata.data(), ifs_sz);
+    return fdata;
+  }
+
+  return std::nullopt;
+}
+
+void dt::directory::fwrite(std::string name, std::string_view data) const {
+  std::ofstream(_pathapp(_path, name), std::ios::binary | std::ios::trunc)
+    .write(data.data(), static_cast<std::streamsize>(data.size()));
+}
+
+std::optional<dt::directory> dt::directory::parent() const noexcept {
+  if (_parent)
+    return *_parent;
+
+  return std::nullopt;
+}

@@ -4,7 +4,7 @@
 
 #include <dt/gpu_imp.hh>
 
-dt::gpu::gpu(config const& cfg) noexcept
-: _gpu(std::make_unique<gpu_imp>(cfg)) {}
+dt::gpu::gpu(system const& sys) noexcept
+: _gpu(std::make_unique<gpu_imp>(sys)) {}
 
 dt::gpu::~gpu() noexcept {}

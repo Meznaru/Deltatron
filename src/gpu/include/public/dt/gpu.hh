@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <dt/config.hh>
+#include <dt/system.hh>
 
 #include <memory>
 
@@ -14,7 +14,7 @@ class gpu final {
   std::unique_ptr<gpu_imp> const _gpu;
 
 public:
-  gpu(config const& cfg) noexcept;
+  gpu(system const&) noexcept;
 
   ~gpu() noexcept;
 };

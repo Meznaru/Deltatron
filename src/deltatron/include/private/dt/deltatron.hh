@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <dt/config.hh>
+#include <dt/system.hh>
 #include <dt/gpu.hh>
 
 namespace dt {
 
 class deltatron final {
-  config const _config;
+  system const _system;
 //  gpu    const _gpu;
 
 public:

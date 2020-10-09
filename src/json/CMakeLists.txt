@@ -13,15 +13,8 @@ target_link_libraries(json
 
 target_sources(json
   PRIVATE
-  "include/private/dt/json/token_stream/token.hh"
-
-  "include/private/dt/json/token_stream/verify_stream.hh"
-  "include/private/dt/json/token_stream/stream_lexer.hh"
-  "include/private/dt/json/token_stream.hh"
-  "src/dt/json/token_stream.cc"
-
-  "include/private/dt/json_imp.hh"
   "include/public/dt/json.hh"
+  "include/private/dt/json_imp.hh"
   "src/dt/json.cc")
 
 add_library("json_interface" INTERFACE)

@@ -6,7 +6,7 @@ target_link_libraries(gpu
   PRIVATE
     cmake_metatarget
     util
-    config_interface
+    system_interface
     Vulkan::Vulkan)
 
 target_include_directories(gpu

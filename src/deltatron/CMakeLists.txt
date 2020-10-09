@@ -4,7 +4,7 @@ target_link_libraries(deltatron
   PRIVATE
     cmake_metatarget
     json
-    config
+    system
     gpu)
 
 target_include_directories(deltatron

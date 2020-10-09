@@ -3,6 +3,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 #include <string_view>
 #include <variant>
 #include <vector>
@@ -39,10 +40,33 @@ public:
   constexpr auto string_value() const noexcept { return std::get<std::string_view>(_optval.value()); }
   constexpr auto bool_value()   const noexcept { return std::get<bool            >(_optval.value()); }
 
-  // Unsure if this static method is necessary; so, I'm commenting it out for now.
-  //static constexpr auto token_to_char(token_id const t) noexcept { return static_cast<char    >(t); }
+  static constexpr auto token_to_char(token_id const t) noexcept { return static_cast<char    >(t); }
   static constexpr auto char_to_token(char const c)     noexcept { return static_cast<token_id>(c); }
 };
+
+std::string token_id_to_string(token const& tok) noexcept {
+  auto const t = tok.type();
+  switch(t) {
+  case token_id::LBrace: [[fallthrough]];
+  case token_id::RBrace: [[fallthrough]];
+  case token_id::LBrack: [[fallthrough]];
+  case token_id::RBrack: [[fallthrough]];
+  case token_id::Colon:  [[fallthrough]];
+  case token_id::Comma:
+    return std::string{token::token_to_char(t)};
+  case token_id::Integer:
+    return std::to_string(tok.int_value());
+  case token_id::Float:
+    return std::to_string(tok.float_value());
+  case token_id::String:
+    return {tok.string_value().begin(), tok.string_value().end()};
+  case token_id::Bool:
+    return std::to_string(tok.bool_value());
+  case token_id::Null:
+    return "null";
+  }
+}
+
 
 using token_stream_t = std::vector<token>;
 

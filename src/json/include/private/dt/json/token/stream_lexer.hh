@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <dt/json/token_stream/token.hh>
+#include <dt/json/token.hh>
 
 #include <charconv>
 #include <optional>

@@ -5,7 +5,7 @@
 #include <dt/gpu/vulkan_instance.hh>
 #include <dt/gpu/vulkan_physical_devices.hh>
 
-#include <dt/config.hh>
+#include <dt/system.hh>
 
 #include <dt/util/ignore.hh>
 
@@ -14,13 +14,13 @@
 namespace dt {
 
 class gpu_imp final {
-  config               const& _config;
+  system               const& _system;
   vk_instance          const  _vkinst;
   vk_physical_devices  const  _vkpdevs;
 
 public:
-  gpu_imp(config const& cfg)
-  : _config(cfg),
+  gpu_imp(system const& sys)
+  : _system(sys),
     _vkinst(),
     _vkpdevs(*_vkinst)
   {
