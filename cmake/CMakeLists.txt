@@ -43,6 +43,5 @@ target_compile_options(cmake_metatarget
       "-Wcast-align"
       #"-Wunused"
       "-Wshadow"
-      "-Wold-style-cast"
       "-Wpointer-arith" "-Wcast-qual" "-Wno-missing-braces"
     >)

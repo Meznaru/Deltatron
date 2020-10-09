@@ -65,7 +65,7 @@ dt::directory::directory(std::string const& path, directory const* parent) noexc
 : _path(path),
   _parent(parent) {}
 
-dt::directory dt::directory::operator()(std::string name) const {
+dt::directory dt::directory::operator/(std::string name) const {
   using namespace ::std::string_literals;
 
   fs::path p(_pathapp(_path, name));

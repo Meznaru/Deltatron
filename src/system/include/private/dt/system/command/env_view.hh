@@ -40,7 +40,7 @@ private:
   constexpr std::optional<std::string_view> _entry_value(std::string_view entry) const noexcept {
     auto const value_begin = &*++std::find_if(entry.begin(), entry.end(), _is_eq_char);
 
-    if (value_begin < &*entry.end())
+    if (value_begin < entry.data() + entry.size())
       return std::string_view(value_begin);
 
     return std::nullopt;

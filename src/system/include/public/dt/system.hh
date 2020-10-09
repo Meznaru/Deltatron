@@ -32,6 +32,12 @@ public:
   std::optional<std::string_view> evar_value(char const* var) const noexcept;
 
   directory rootdir() const noexcept;
+
+  system(system&)  = delete;
+  system(system&&) = delete;
+
+  system operator=(system)    = delete;
+  system& operator=(system&&) = delete;
 }; // class system
 
 } // namespace dt
