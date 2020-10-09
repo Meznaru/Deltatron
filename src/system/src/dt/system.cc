@@ -4,20 +4,8 @@
 
 #include <dt/system_imp.hh>
 
-#include <cassert>
-
-namespace dt {
-
-static constinit bool _sys_init = false;
-
-}
-
 dt::system::system(int ac, char const** av, char const** ep)
-: _system(std::make_unique<system_imp>(ac, av, ep))
-{
-  assert(!_sys_init);
-  _sys_init = true;
-}
+: _system(std::make_unique<system_imp>(ac, av, ep)) { }
 
 dt::system::~system() noexcept {}
 
