@@ -12,6 +12,5 @@ dt::json_container dt::json::_parse_data(std::string_view data) {
     lex.append_token(ts);
 
   json_parser par(_id, ts);
-
   return par.create_container_tree();
 }
