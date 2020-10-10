@@ -63,7 +63,7 @@ public:
 
   constexpr bool done() const noexcept { return _pos.eof(); }
 
-  void append_token(json_value::stream_type& ts) {
+  void append_token(json_stream_t& ts) {
     if (_is_keychar())
       ts.push_back({_char_to_token(*_pos), _current_line});
 
@@ -101,7 +101,7 @@ private:
     }
   } // _is_keychar
 
-  std::optional<std::string_view> _is_string() {
+  std::optional<std::string> _is_string() {
     if (*_pos != '"')
       return std::nullopt;
 
@@ -115,7 +115,7 @@ private:
         _id + ": encountered end of file during string read at line "
         + std::to_string(_current_line));
 
-    return std::string_view(begin, static_cast<std::string_view::size_type>(&_pos - begin));
+    return std::string(begin, static_cast<std::string_view::size_type>(&_pos - begin));
   } // _is_string
 
   template <typename NumT>

@@ -13,10 +13,12 @@ class json final {
 public:
   json(std::string id, std::string_view data)
   : _id(id),
-    _root(_parse_data(data)) {}
+    _root(_parse_stream(data)) {}
+
+  json_container const& root() const noexcept { return _root; }
 
 private:
-  dt::json_container _parse_data(std::string_view data);
+  json_container _parse_stream(std::string_view) const;
 };
 
 }

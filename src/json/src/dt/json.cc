@@ -3,14 +3,19 @@
 #include <dt/json.hh>
 
 #include <dt/json/lexer.hh>
+#include <dt/json/verify_stream.hh>
 #include <dt/json/parser.hh>
 
-dt::json_container dt::json::_parse_data(std::string_view data) {
-  json_value::stream_type ts{};
+dt::json_container dt::json::_parse_stream(std::string_view data) const {
+  if (data.empty())
+    return {_id};
 
-  for (json_lexer lex{_id, data}; !lex.done(); ++lex)
+  json_stream_t ts{};
+
+  for (json_lexer lex(_id, data); !lex.done(); ++lex)
     lex.append_token(ts);
 
-  json_parser par(_id, ts);
-  return par.create_container_tree();
+  verify_stream(_id, ts);
+
+  return json_parser(_id, ts).create_container_tree();
 }

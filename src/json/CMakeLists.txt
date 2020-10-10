@@ -14,6 +14,7 @@ target_link_libraries(json
 target_sources(json
   PRIVATE
   "include/private/dt/json/lexer.hh"
+  "include/private/dt/json/verify_stream.hh"
   "include/private/dt/json/parser.hh"
 
   "include/public/dt/json/container/value.hh"

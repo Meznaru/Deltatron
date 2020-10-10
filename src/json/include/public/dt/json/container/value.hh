@@ -4,7 +4,6 @@
 
 #include <optional>
 #include <string>
-#include <string_view>
 #include <variant>
 #include <vector>
 
@@ -24,8 +23,7 @@ class json_lexer;
 
 class json_value final {
 public:
-  using value_type = std::optional<std::variant<std::string_view, float, long, bool>>;
-  using stream_type = std::vector<json_value>;
+  using value_type = std::optional<std::variant<std::string, float, long, bool>>;
 
 private:
   friend class ::dt::json_lexer;
@@ -42,10 +40,7 @@ public:
   constexpr auto float_value()   const noexcept { return std::get<float>(_value.value()); }
   constexpr auto bool_value()    const noexcept { return std::get<bool>(_value.value());  }
 
-  std::string string_value() const noexcept {
-    auto const view = std::get<std::string_view>(_value.value());
-    return std::string(view.data(), view.size());
-  }
+  auto string_value() const noexcept { return std::get<std::string>(_value.value()); }
 
 private:
   json_value(json_value_t type, std::size_t line, value_type value = std::nullopt)
@@ -53,5 +48,7 @@ private:
     _line(line),
     _value(value) {}
 };
+
+using json_stream_t = std::vector<json_value>;
 
 }

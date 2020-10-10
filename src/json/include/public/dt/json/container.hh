@@ -13,16 +13,18 @@
 
 namespace dt {
 
+class json;
 class json_parser;
 
 class json_container final {
 public:
-  using container_type = std::variant<json_container, json_value>;
-  using object_type    = std::map<std::string_view, container_type>;
-  using array_type     = std::vector<container_type>;
-  using value_type     = std::variant<object_type, array_type>;
+  using basic_type  = std::variant<json_container, json_value>;
+  using object_type = std::map<std::string_view, basic_type>;
+  using array_type  = std::vector<basic_type>;
+  using value_type  = std::variant<object_type, array_type>;
 
 private:
+  friend class ::dt::json;
   friend class ::dt::json_parser;
 
   std::string const& _id;
@@ -86,7 +88,7 @@ private:
     }
   }
 
-  json_container(std::string const& id, json_value_t type, value_type value)
+  json_container(std::string const& id, json_value_t type = json_value_t::Object, value_type value = object_type())
   : _id(id),
     _type(type),
     _value(value) {}
