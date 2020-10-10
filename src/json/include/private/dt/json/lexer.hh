@@ -115,7 +115,7 @@ private:
         _id + ": encountered end of file during string read at line "
         + std::to_string(_current_line));
 
-    return std::string(begin, static_cast<std::string_view::size_type>(&_pos - begin));
+    return std::string(begin, static_cast<std::string::size_type>(&_pos - begin));
   } // _is_string
 
   template <typename NumT>
