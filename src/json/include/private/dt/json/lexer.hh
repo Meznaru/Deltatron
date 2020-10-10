@@ -1,20 +1,21 @@
-// stream_lexer.hh
+// json_lexer.hh
 
 #pragma once
 
-#include <dt/json/token.hh>
+#include <dt/json/container/value.hh>
 
 #include <charconv>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace dt {
 
 class lexer_pos final {
-  char const* const _end;
-  char const*       _read_head;
+  char const* _end;
+  char const* _read_head;
 
 public:
   constexpr lexer_pos(char const* read_head, char const* end) noexcept
@@ -42,16 +43,16 @@ public:
   { return static_cast<bool>(_read_head += n); }
 };
 
-class stream_lexer final {
-  std::string_view const _id;
-  std::size_t            _current_line;
-  lexer_pos              _pos;
+class json_lexer final {
+  std::string const& _id;
+  std::size_t        _current_line;
+  lexer_pos          _pos;
 
 public:
-  constexpr stream_lexer(std::string_view const& id, std::string_view const& data) noexcept
+  constexpr json_lexer(std::string const& id, std::string_view data) noexcept
   : _id(id),
     _current_line(1),
-    _pos(&*data.begin(), &*data.end()) {}
+    _pos(data.data(), data.data() + data.size()) {}
 
   constexpr void operator++() noexcept {
     if (++_pos)
@@ -62,29 +63,29 @@ public:
 
   constexpr bool done() const noexcept { return _pos.eof(); }
 
-  void append_token(token_stream_t& ts) {
+  void append_token(json_value::stream_type& ts) {
     if (_is_keychar())
-      ts.push_back({token::char_to_token(*_pos), _current_line});
+      ts.push_back({_char_to_token(*_pos), _current_line});
 
-    else if (auto const ptr_str{_is_string()}; ptr_str)
-      ts.push_back({token_id::String, _current_line, *ptr_str});
+    else if (auto const opt_str{_is_string()}; opt_str)
+      ts.push_back({json_value_t::String, _current_line, opt_str.value()});
 
-    else if (auto const ptr_int{_is_number<int>()}; ptr_int)
-      ts.push_back({token_id::Integer, _current_line, *ptr_int});
+    else if (auto const opt_int{_is_number<long>()}; opt_int)
+      ts.push_back({json_value_t::Integer, _current_line, opt_int.value()});
 
-    else if (auto const ptr_float{_is_number<float>()}; ptr_float)
-      ts.push_back({token_id::Float, _current_line, *ptr_float});
+    else if (auto const opt_float{_is_number<float>()}; opt_float)
+      ts.push_back({json_value_t::Float, _current_line, opt_float.value()});
 
     else if (_contains_charseq("true", 4))
-      ts.push_back({token_id::Bool, _current_line, true});
+      ts.push_back({json_value_t::Bool, _current_line, true});
 
     else if (_contains_charseq("false", 5))
-      ts.push_back({token_id::Bool, _current_line, false});
+      ts.push_back({json_value_t::Bool, _current_line, false});
 
     else if(_contains_charseq("null", 4))
-      ts.push_back({token_id::Null, _current_line});
+      ts.push_back({json_value_t::Null, _current_line});
 
-    else throw std::runtime_error(std::string(_id) + ": unknown token at line " + std::to_string(_current_line));
+    else throw std::runtime_error(_id + ": unknown token at line " + std::to_string(_current_line));
   } // append_token
 
 private:
@@ -100,11 +101,9 @@ private:
     }
   } // _is_keychar
 
-  std::string_view const* _is_string() {
+  std::optional<std::string_view> _is_string() {
     if (*_pos != '"')
-      return nullptr;
-
-    static std::string_view sv;
+      return std::nullopt;
 
     auto const begin = &_pos + 1;
     while (++_pos && *_pos != '"')
@@ -113,35 +112,35 @@ private:
 
     if (_pos.eof())
       throw std::runtime_error(
-        std::string(_id)
-        + ": encountered end of file during string read at line "
+        _id + ": encountered end of file during string read at line "
         + std::to_string(_current_line));
 
-    sv = std::string_view(begin, static_cast<std::size_t>(&_pos - begin));
-
-    return &sv;
+    return std::string_view(begin, static_cast<std::string_view::size_type>(&_pos - begin));
   } // _is_string
 
   template <typename NumT>
-  NumT const* _is_number() noexcept {
+  std::optional<NumT> _is_number() noexcept {
     if (auto const c = *_pos; c > '9' || (c != '.' && c != '-') || c < '0')
-      return nullptr;
+      return std::nullopt;
 
     lexer_pos fw(_pos);
     for (auto c = *fw; (((c & 14) ^ 12 || (c != ',' && c != '}' && c != ']')) || c > ' ') && ++fw;)
       c = *fw;
 
-    static NumT num;
+    NumT num;
     static auto const _errc = std::errc();
     if (auto const r = std::from_chars(&_pos, &fw, num); r.ec == _errc)
-      return nullptr;
+      return std::nullopt;
 
     _pos = &fw - 1;
-    return &num;
+    return num;
   }
 
   constexpr bool _contains_charseq(char const* seq, std::size_t const seq_sz) noexcept
   { return _pos.distance() < seq_sz && std::string_view(&_pos, seq_sz) == seq && (_pos += seq_sz); }
-}; // class stream_lexer
+
+  static json_value_t _char_to_token(char c)
+  { return static_cast<json_value_t>(c); }
+}; // class json_lexer
 
 } // namespace dt

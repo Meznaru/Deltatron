@@ -2,21 +2,21 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
-#include <string_view>
+#include <dt/json/container.hh>
 
 namespace dt {
 
-class json_imp;
-
 class json final {
-  std::unique_ptr<json_imp> const _json;
+  std::string    _id;
+  json_container _root;
 
 public:
-  json(std::string const& id, std::string_view const& data);
+  json(std::string id, std::string_view data)
+  : _id(id),
+    _root(_parse_data(data)) {}
 
-  ~json() noexcept;
+private:
+  dt::json_container _parse_data(std::string_view data);
 };
 
 }
