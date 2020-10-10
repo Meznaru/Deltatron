@@ -38,7 +38,7 @@ private:
     auto const c = t;
     switch (c->type()) {
     case json_value_t::LBrace:
-      return _create_object(t);
+      return _create_object(++t);
     case json_value_t::LBrack:
       return _create_array(++t);
     default:
