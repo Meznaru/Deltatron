@@ -76,13 +76,13 @@ public:
     else if (auto const opt_float{_is_number<float>()}; opt_float)
       ts.push_back({json_value_t::Float, _current_line, opt_float.value()});
 
-    else if (_contains_charseq("true", 4))
+    else if (_contains_charseq("true"))
       ts.push_back({json_value_t::Bool, _current_line, true});
 
-    else if (_contains_charseq("false", 5))
+    else if (_contains_charseq("false"))
       ts.push_back({json_value_t::Bool, _current_line, false});
 
-    else if(_contains_charseq("null", 4))
+    else if(_contains_charseq("null"))
       ts.push_back({json_value_t::Null, _current_line});
 
     else throw std::runtime_error(_id + ": unknown token at line " + std::to_string(_current_line));
@@ -136,8 +136,8 @@ private:
     return num;
   }
 
-  constexpr bool _contains_charseq(char const* seq, std::size_t const seq_sz) noexcept
-  { return _pos.distance() < seq_sz && std::string_view(&_pos, seq_sz) == seq && (_pos += seq_sz); }
+  constexpr bool _contains_charseq(std::string_view seq) noexcept
+  { return _pos.distance() < seq.size() && std::string_view(&_pos, seq.size()) == seq && (_pos += seq.size()); }
 
   static json_value_t _char_to_token(char c)
   { return static_cast<json_value_t>(c); }
