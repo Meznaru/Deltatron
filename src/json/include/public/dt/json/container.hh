@@ -6,7 +6,6 @@
 
 #include <map>
 #include <optional>
-#include <string_view>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -19,7 +18,7 @@ class json_parser;
 class json_container final {
 public:
   using basic_type  = std::variant<json_container, json_value>;
-  using object_type = std::map<std::string_view, basic_type>;
+  using object_type = std::map<std::string, basic_type>;
   using array_type  = std::vector<basic_type>;
   using value_type  = std::variant<object_type, array_type>;
 
