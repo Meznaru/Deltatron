@@ -11,10 +11,10 @@ namespace dt {
 class filesystem;
 
 class directory final {
-  friend class ::dt::filesystem;
-
   std::string      _path;
   directory const* _parent;
+
+  friend class ::dt::filesystem;
 
 public:
   std::optional<directory> parent() const noexcept;
