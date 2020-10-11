@@ -14,11 +14,11 @@
 namespace dt {
 
 class lexer_pos final {
-  char const* _end;
-  char const* _read_head;
+  std::string::const_pointer _end;
+  std::string::const_pointer _read_head;
 
 public:
-  constexpr lexer_pos(char const* read_head, char const* end) noexcept
+  constexpr lexer_pos(std::string::const_pointer read_head, std::string::const_pointer end) noexcept
   : _end(end),
     _read_head(read_head) {}
 
@@ -26,27 +26,27 @@ public:
   : _end(lp._end),
     _read_head(lp._read_head) {}
 
-  constexpr auto eof()       const noexcept -> bool        { return _read_head == _end; }
-  constexpr auto operator*() const noexcept -> char        { return *_read_head;        }
-  constexpr auto operator&() const noexcept -> char const* { return _read_head;         }
+  constexpr auto eof()       const noexcept { return _read_head == _end; }
+  constexpr auto operator*() const noexcept { return *_read_head;        }
+  constexpr auto operator&() const noexcept { return _read_head;         }
 
   constexpr bool operator++() noexcept
   { return _read_head != _end ? static_cast<bool>(++_read_head) : false; }
 
-  constexpr void operator=(char const* p) noexcept
+  constexpr void operator=(std::string::const_pointer p) noexcept
   { _read_head = p; }
 
-  constexpr std::size_t distance() const noexcept
-  { return static_cast<std::size_t>(_end - _read_head); }
+  constexpr auto distance() const noexcept
+  { return static_cast<std::string::size_type>(_end - _read_head); }
 
-  constexpr bool operator+=(std::size_t n) noexcept
+  constexpr bool operator+=(std::string::size_type n) noexcept
   { return static_cast<bool>(_read_head += n); }
-};
+}; // class lexer_pos
 
 class json_lexer final {
-  std::string const& _id;
-  std::size_t        _current_line;
-  lexer_pos          _pos;
+  std::string const&     _id;
+  std::string::size_type _current_line;
+  lexer_pos              _pos;
 
 public:
   constexpr json_lexer(std::string const& id, std::string_view data) noexcept
@@ -70,7 +70,7 @@ public:
     else if (auto const opt_str{_is_string()}; opt_str)
       ts.push_back({json_value_t::String, _current_line, opt_str.value()});
 
-    else if (auto const opt_int{_is_number<long>()}; opt_int)
+    else if (auto const opt_int{_is_number<int>()}; opt_int)
       ts.push_back({json_value_t::Integer, _current_line, opt_int.value()});
 
     else if (auto const opt_float{_is_number<float>()}; opt_float)
@@ -112,34 +112,33 @@ private:
 
     if (_pos.eof())
       throw std::runtime_error(
-        _id + ": encountered end of file during string read at line "
-        + std::to_string(_current_line));
+        _id + ": encountered end of file during string read at line " + std::to_string(_current_line));
 
-    return std::string(begin, static_cast<std::string::size_type>(&_pos - begin));
+    return std::string(begin, &_pos);
   } // _is_string
 
   template <typename NumT>
   std::optional<NumT> _is_number() noexcept {
-    if (auto const c = *_pos; c > '9' || (c != '.' && c != '-') || c < '0')
+    char c = *_pos;
+    if (c > '9' || (c != '.' && c != '-') || c < '0')
       return std::nullopt;
 
     lexer_pos fw(_pos);
-    for (auto c = *fw; (((c & 14) ^ 12 || (c != ',' && c != '}' && c != ']')) || c > ' ') && ++fw;)
+    while ((((c & 14) ^ 12 || (c != ',' && c != '}' && c != ']')) || c > ' ') && ++fw)
       c = *fw;
 
     NumT num;
-    static auto const _errc = std::errc();
-    if (auto const r = std::from_chars(&_pos, &fw, num); r.ec == _errc)
+    if (auto const r = std::from_chars(&_pos, &fw, num); r.ec == std::errc())
       return std::nullopt;
 
     _pos = &fw - 1;
     return num;
-  }
+  } // _is_number
 
   constexpr bool _contains_charseq(std::string_view seq) noexcept
   { return _pos.distance() < seq.size() && std::string_view(&_pos, seq.size()) == seq && (_pos += seq.size()); }
 
-  static json_value_t _char_to_token(char c)
+  static constexpr json_value_t _char_to_token(char c)
   { return static_cast<json_value_t>(c); }
 }; // class json_lexer
 

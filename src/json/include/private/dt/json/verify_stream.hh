@@ -88,9 +88,28 @@ void verify_object_entry(json_verify_state& state) {
 void verify_index(json_verify_state& state) {
   auto& c = state.curr;
 
-  if (c->type() == json_value_t::LBrace) {
+  if (c >= state.ts.end())
+    throw std::runtime_error(state.id + ": expected json value at line " + std::to_string(c->line()));
+
+  switch (c->type()) {
+  case json_value_t::String:  [[fallthrough]];
+  case json_value_t::Integer: [[fallthrough]];
+  case json_value_t::Float:   [[fallthrough]];
+  case json_value_t::Bool:    [[fallthrough]];
+  case json_value_t::Null:
+    ++c;
+    break;
+  case json_value_t::Object:
     verify_object(state);
+    break;
+  case json_value_t::Array:
+    verify_array(state);
+    break;
+  default:
+    throw std::runtime_error(state.id + ": expected json value, instead read ");
   }
+
+  // if (c->type() == )
 }
 
 void verify_object(json_verify_state&) {}

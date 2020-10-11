@@ -6,10 +6,7 @@
 #include <dt/json/verify_stream.hh>
 #include <dt/json/parser.hh>
 
-dt::json_container dt::json::_parse_stream(std::string_view data) const {
-  if (data.empty())
-    return {_id};
-
+dt::json_object_type dt::json::_parse_stream(std::string_view data) const {
   json_stream_t ts{};
 
   for (json_lexer lex(_id, data); !lex.done(); ++lex)
@@ -17,5 +14,5 @@ dt::json_container dt::json::_parse_stream(std::string_view data) const {
 
   verify_stream(_id, ts);
 
-  return json_parser(_id, ts).create_container_tree();
+  return json_parser(_id, ts).create_root_object();
 }
