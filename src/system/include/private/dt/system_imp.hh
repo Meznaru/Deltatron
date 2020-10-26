@@ -22,7 +22,7 @@ public:
   auto evar_defined(std::string_view var) const noexcept { return _cmd.evar_defined(var);  }
   auto evar_value(std::string_view var)   const noexcept { return _cmd.evar_value(var);    }
 
-  auto rootdir() const noexcept { return _fs.rootdir(); }
+  auto root_dir() const noexcept { return _fs.root_dir(); }
 
   auto os() const noexcept { return os::get_id(); }
 }; // class system_imp

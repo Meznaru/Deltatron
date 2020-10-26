@@ -10,14 +10,14 @@
 namespace dt {
 
 class filesystem final {
-  std::string _rootdir;
+  std::string _root_dir;
 
 public:
   filesystem(command const& cmd)
-  : _rootdir(_eval_root_dir_path(cmd)) {}
+  : _root_dir(_eval_root_dir_path(cmd)) {}
 
-  directory rootdir() const noexcept
-  { return directory(_rootdir, nullptr); }
+  directory root_dir() const noexcept
+  { return directory(_root_dir, nullptr); }
 
 private:
   std::string _eval_root_dir_path(command const& c) const;

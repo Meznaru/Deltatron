@@ -30,7 +30,7 @@ public:
   auto evar_defined(std::string_view var) const noexcept -> bool;
   auto evar_value(std::string_view var)   const noexcept -> std::optional<std::string_view>;
 
-  auto rootdir() const noexcept -> directory;
+  auto root_dir() const noexcept -> directory;
 
   auto os() const noexcept -> os_id;
 

@@ -26,8 +26,8 @@ bool dt::system::evar_defined(std::string_view var) const noexcept
 std::optional<std::string_view> dt::system::evar_value(std::string_view var) const noexcept
 { return _system->evar_value(var); }
 
-dt::directory dt::system::rootdir() const noexcept
-{ return _system->rootdir(); }
+dt::directory dt::system::root_dir() const noexcept
+{ return _system->root_dir(); }
 
 dt::os_id dt::system::os() const noexcept
 { return _system->os(); }
