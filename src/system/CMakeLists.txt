@@ -33,7 +33,6 @@ target_sources(system
 
 target_link_libraries(system
   PRIVATE
-    util
     cmake_metatarget)
 
 add_library("system_interface" INTERFACE)
