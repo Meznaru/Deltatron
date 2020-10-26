@@ -3,7 +3,7 @@
 #include <dt/system/filesystem/directory.hh>
 #include <dt/system/filesystem.hh>
 
-#include <dt/util/system.hh>
+#include <dt/system/os.hh>
 
 #include <filesystem>
 #include <fstream>
@@ -24,7 +24,7 @@ std::string dt::filesystem::_eval_root_dir_path(command const& c) const {
   if (auto const opt_custom_dir = c.cmdflag_value(flag_id::root_directory_location); opt_custom_dir)
     root /= opt_custom_dir.value();
 
-  else if (auto const opt_appdata = c.evar_value("LOCALAPPDATA"); opt_appdata && system_os == os::windows)
+  else if (auto const opt_appdata = c.evar_value("LOCALAPPDATA"); opt_appdata && os::is_windows())
     (root /= opt_appdata.value()) /= "Programs";
 
   else if (auto const opt_home_dir = c.evar_value("HOME"); opt_home_dir)
@@ -34,7 +34,7 @@ std::string dt::filesystem::_eval_root_dir_path(command const& c) const {
   if (auto const opt_custom_name = c.cmdflag_value(flag_id::root_directory_name); opt_custom_name)
     root /= opt_custom_name.value();
 
-  else if (system_os == os::windows)
+  else if (os::is_windows())
     root /= "Deltatron";
 
   else

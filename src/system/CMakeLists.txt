@@ -21,8 +21,11 @@ target_sources(system
     "include/private/dt/system/command/env_view.hh"
     "include/private/dt/system/command.hh"
 
+    "include/private/dt/system/os.hh"
+
     "include/private/dt/system_imp.hh"
 
+    "include/public/dt/system/platform/os_id.hh"
     "include/public/dt/system/command/flag_id.hh"
     "include/public/dt/system/command/termflag_passed.hh"
     "include/public/dt/system.hh"

@@ -4,6 +4,7 @@
 
 #include <dt/system/command.hh>
 #include <dt/system/filesystem.hh>
+#include <dt/system/os.hh>
 
 namespace dt {
 
@@ -22,6 +23,8 @@ public:
   auto evar_value(std::string_view var)   const noexcept { return _cmd.evar_value(var);    }
 
   auto rootdir() const noexcept { return _fs.rootdir(); }
+
+  auto os() const noexcept { return os::get_id(); }
 }; // class system_imp
 
 } // namespace dt

@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-static constinit bool _was_init{false};
+static bool _was_init{false};
 
 dt::system::system(int ac, char const** av, char const** ep)
 : _system(([](bool& i = _was_init) mutable
@@ -28,3 +28,6 @@ std::optional<std::string_view> dt::system::evar_value(std::string_view var) con
 
 dt::directory dt::system::rootdir() const noexcept
 { return _system->rootdir(); }
+
+dt::os_id dt::system::os() const noexcept
+{ return _system->os(); }

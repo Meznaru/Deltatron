@@ -7,6 +7,8 @@
 
 #include <dt/system/filesystem/directory.hh>
 
+#include <dt/system/platform/os_id.hh>
+
 #include <memory>
 #include <optional>
 #include <string_view>
@@ -27,7 +29,10 @@ public:
   auto cmdflag_value(dt::flag_id id)      const noexcept -> std::optional<std::string_view>;
   auto evar_defined(std::string_view var) const noexcept -> bool;
   auto evar_value(std::string_view var)   const noexcept -> std::optional<std::string_view>;
-  auto rootdir()                          const noexcept -> directory;
+
+  auto rootdir() const noexcept -> directory;
+
+  auto os() const noexcept -> os_id;
 
   system(system&)  = delete;
   system(system&&) = delete;
