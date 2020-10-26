@@ -17,13 +17,14 @@ class directory final {
   friend class ::dt::filesystem;
 
 public:
-  std::optional<directory> parent() const noexcept;
+  auto parent() const noexcept -> std::optional<directory>;
+  auto name()   const noexcept -> std::string;
 
-  directory operator/(std::string name) const;
+  auto mkdir(std::string const& name) const -> directory;
+  auto chdir(std::string const& name) const -> directory;
 
-  std::optional<std::string> fload(std::string name) const;
-
-  void fwrite(std::string name, std::string_view data) const;
+  auto fload(std::string const& name)                         const -> std::optional<std::string>;
+  auto fwrite(std::string const& name, std::string_view data) const -> void;
 
 private:
   directory(std::string const& path, directory const* parent) noexcept;

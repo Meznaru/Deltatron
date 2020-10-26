@@ -4,21 +4,23 @@
 
 #include <dt/json/container.hh>
 
+#include <memory>
+#include <string>
+#include <string_view>
+
 namespace dt {
 
+class json_imp;
+
 class json final {
-  std::string      _id;
-  json_object_type _root;
+  std::unique_ptr<json_imp> _json;
 
 public:
-  json(std::string id, std::string_view data)
-  : _id(id),
-    _root(_parse_stream(data)) {}
+  json(std::string id, std::string_view data);
 
-  json_object_type const& root_obj() const noexcept { return _root; }
+  ~json() noexcept;
 
-private:
-  json_object_type _parse_stream(std::string_view) const;
+  json_container root() const noexcept;
 };
 
 }

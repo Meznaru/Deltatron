@@ -16,10 +16,10 @@ public:
   : _cmd(ac, av, ep),
     _fs(_cmd) {}
 
-  bool cmdflag_passed(dt::flag_id const id) const noexcept { return _cmd.cmdflag_passed(id); }
-  auto cmdflag_value(dt::flag_id const id)  const noexcept { return _cmd.cmdflag_value(id);  }
-  bool evar_defined(char const* var)        const noexcept { return _cmd.evar_defined(var);  }
-  auto evar_value(char const* var)          const noexcept { return _cmd.evar_value(var);    }
+  auto cmdflag_passed(dt::flag_id id)     const noexcept { return _cmd.cmdflag_passed(id); }
+  auto cmdflag_value(dt::flag_id id)      const noexcept { return _cmd.cmdflag_value(id);  }
+  auto evar_defined(std::string_view var) const noexcept { return _cmd.evar_defined(var);  }
+  auto evar_value(std::string_view var)   const noexcept { return _cmd.evar_value(var);    }
 
   auto rootdir() const noexcept { return _fs.rootdir(); }
 }; // class system_imp

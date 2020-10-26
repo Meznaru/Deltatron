@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <map>
 #include <string>
+#include <string_view>
 
 namespace dt {
 
@@ -23,8 +24,8 @@ public:
   flag_database() noexcept
   : _db(_gen_flag_db()) {}
 
-  char const* flag_name(dt::flag_id const id) const noexcept
-  { return _db.at(id).name.c_str(); }
+  std::string_view flag_name(dt::flag_id id) const noexcept
+  { return _db.at(id).name.data(); }
 
   bool is_flag(std::string_view v) const noexcept
   { return std::any_of(_db.begin(), _db.end(), [&v](auto const& f){ return f.second.name == v; }); }

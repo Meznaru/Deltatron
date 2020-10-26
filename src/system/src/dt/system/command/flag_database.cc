@@ -13,12 +13,12 @@
 std::string dt::flag_database::gen_help_msg() const noexcept {
   std::stringstream hms{};
 
-  int const name_maxlen = static_cast<int>(std::max_element(_db.begin(), _db.end(),
+  int name_maxlen = int(std::max_element(_db.begin(), _db.end(),
     [](auto const& large, auto const& next)
     { return large.second.name.size() < next.second.name.size(); }
       )->second.name.size() + 1);
 
-  int const descr_maxlen = static_cast<int>(std::max_element(_db.begin(), _db.end(),
+  int descr_maxlen = int(std::max_element(_db.begin(), _db.end(),
     [](auto const& large, auto const& next)
     { return large.second.description.size() < next.second.description.size(); }
       )->second.description.size());
@@ -36,11 +36,8 @@ std::string dt::flag_database::gen_help_msg() const noexcept {
       << std::setw(descr_maxlen) << p.second.description
       << std::endl;
 
-
   return hms.str();
-} // gen_help_msg
-
-
+}
 
 std::map<dt::flag_id, dt::flag_database::_flag_info> dt::flag_database::_gen_flag_db() const noexcept {
   return
@@ -85,4 +82,4 @@ std::map<dt::flag_id, dt::flag_database::_flag_info> dt::flag_database::_gen_fla
       }
     }
   };
-} // _gen_flag_db
+}

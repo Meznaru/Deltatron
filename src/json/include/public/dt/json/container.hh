@@ -1,51 +1,46 @@
-// object.hh
+// container.hh
 
 #pragma once
 
-#include <dt/json/container/value.hh>
+#include <dt/json/container/type.hh>
 
-#include <map>
+#include <optional>
 #include <string>
-#include <variant>
-#include <vector>
+
+#include <cstddef>
 
 namespace dt {
 
-class json_container;
+class json;
 
-using json_type = std::variant<json_container, json_value>;
-
-using json_object_type = std::map<std::string, json_type>;
-
-using json_array_type = std::vector<json_type>;
-
-
-
-class json_parser;
+class json_container_imp;
 
 class json_container final {
 public:
-  using value_type = std::variant<json_object_type, json_array_type>;
+  friend class ::dt::json;
 
 private:
-  std::string const& _id;
-  json_value_t       _type;
-  value_type         _value;
-
-  friend class ::dt::json_parser;
+  json_container_imp const& _container;
 
 public:
-  constexpr auto type() const noexcept -> json_value_t       { return _type; }
-  constexpr auto id()   const noexcept -> std::string const& { return _id;   }
+  auto type() const noexcept -> json_t;
 
-  constexpr json_object_type const& obj() const noexcept { return std::get<json_object_type>(_value); }
-  constexpr json_array_type  const& arr() const noexcept { return std::get<json_array_type>(_value);  }
+  auto type_at(std::string const&)      const noexcept -> json_t;
+  auto container_at(std::string const&) const noexcept -> std::optional<json_container>;
+  auto string_at(std::string const&)    const noexcept -> std::optional<std::string>;
+  auto int_at(std::string const&)       const noexcept -> std::optional<int>;
+  auto float_at(std::string const&)     const noexcept -> std::optional<float>;
+  auto bool_at(std::string const&)      const noexcept -> std::optional<bool>;
+
+  auto type_at(std::size_t)             const noexcept -> json_t;
+  auto container_at(std::size_t)        const noexcept -> std::optional<json_container>;
+  auto string_at(std::size_t)           const noexcept -> std::optional<std::string>;
+  auto int_at(std::size_t)              const noexcept -> std::optional<int>;
+  auto float_at(std::size_t)            const noexcept -> std::optional<float>;
+  auto bool_at(std::size_t)             const noexcept -> std::optional<bool>;
 
 private:
-  json_container(std::string const& id, json_value_t type, value_type value) noexcept
-  : _id(id),
-    _type(type),
-    _value(value) {}
-}; // class json_container
+  json_container(json_container_imp const&) noexcept;
+};
 
-} // namespace dt
+}

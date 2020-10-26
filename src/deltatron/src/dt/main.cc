@@ -6,19 +6,23 @@
 
 int main(int ac, char const** av, char const** ep) {
   try {
-
-    dt::deltatron deltatron(ac, av, ep);
-
+    dt::deltatron const deltatron(ac, av, ep);
     deltatron.run();
 
   } catch (dt::termflag_passed const& tf) {
     std::cerr << tf.msg << std::endl;
 
+  } catch(std::runtime_error const& re) {
+    std::cerr << "std::runtime_error: " << re.what() << std::endl;
+
   } catch (std::exception const& e) {
-    std::cerr << e.what() << std::endl;
+    std::cerr << "std::exception: " << e.what() << std::endl;
+
+  } catch (char const* cstr) {
+    std::cerr << "error: " << cstr << std::endl;
 
   } catch (...) {
-    std::cerr << "unknown type caught in main" << std::endl;
+    std::cerr << "error: unknown type caught in main" << std::endl;
 
   }
 }

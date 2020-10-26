@@ -21,32 +21,33 @@ public:
   { return std::any_of(_begin, _end, [&](auto e) { return _entry_name(e) == var; }); }
 
   constexpr std::optional<std::string_view> value(std::string_view var) const noexcept {
-    auto const idx = std::find_if(_begin, _end, [&](auto e) { return _entry_name(e) == var; });
+    auto idx = std::find_if(_begin, _end, [&](auto e) { return _entry_name(e) == var; });
 
-    if (idx != _end)
-      return _entry_value(*idx);
+    if (idx == _end)
+      return std::nullopt;
 
-    return std::nullopt;
+    return _entry_value(*idx);
   }
 
 private:
   constexpr std::string_view _entry_name(std::string_view entry) const noexcept {
-    auto const name_end  = &*std::find_if(entry.begin(), entry.end(), _is_eq_char);
-    auto const name_size = static_cast<std::string_view::size_type>(name_end - entry.data());
+    auto name_end  = _name_value_border(entry);
+    auto name_size = static_cast<std::string_view::size_type>(&*name_end - entry.data());
 
     return std::string_view(entry.data(), name_size);
   }
 
   constexpr std::optional<std::string_view> _entry_value(std::string_view entry) const noexcept {
-    auto const value_begin = &*++std::find_if(entry.begin(), entry.end(), _is_eq_char);
+    auto value_begin = _name_value_border(entry) + 1;
 
-    if (value_begin < entry.data() + entry.size())
-      return std::string_view(value_begin);
+    if (value_begin == entry.end())
+      return std::nullopt;
 
-    return std::nullopt;
+    return std::string_view(&*value_begin);
   }
 
-  static constexpr bool _is_eq_char(char c) { return c == '='; }
+  constexpr std::string_view::const_iterator _name_value_border(std::string_view entry) const noexcept
+  { return std::find_if(entry.begin(), entry.end(), [](char c) { return c == '='; }); }
 }; // class basic_env_view
 
 } // namespace dt

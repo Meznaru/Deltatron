@@ -31,18 +31,21 @@ public:
       throw termflag_passed(opt_msg.value());
   }
 
-  bool cmdflag_passed(dt::flag_id id) const noexcept { return _arg_view.contains(_flag_db.flag_name(id)); }
+  bool cmdflag_passed(dt::flag_id id) const noexcept
+  { return _arg_view.contains(_flag_db.flag_name(id)); }
 
   std::optional<std::string_view> cmdflag_value(dt::flag_id id) const noexcept {
-    if (auto const opt_val = _arg_view.arg_next_to(_flag_db.flag_name(id)); opt_val)
-      if (!_flag_db.is_flag(opt_val.value()))
-        return opt_val.value();
+    if (auto opt_val{_arg_view.arg_next_to(_flag_db.flag_name(id))}; opt_val && !_flag_db.is_flag(opt_val.value()))
+      return opt_val;
 
     return std::nullopt;
   }
 
-  constexpr bool evar_defined(char const* var) const noexcept { return _env_view.defined(var); }
-  constexpr auto evar_value(char const* var)   const noexcept { return _env_view.value(var);   }
+  constexpr bool evar_defined(std::string_view var) const noexcept
+  { return _env_view.defined(var); }
+
+  constexpr std::optional<std::string_view> evar_value(std::string_view var) const noexcept
+  { return _env_view.value(var); }
 
 private:
   std::optional<std::string> _termflag_passed() const noexcept {

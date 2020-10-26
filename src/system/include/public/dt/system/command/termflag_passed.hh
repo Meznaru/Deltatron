@@ -7,7 +7,7 @@
 namespace dt {
 
 struct termflag_passed final {
-  std::string const msg{};
+  std::string msg{};
 
   termflag_passed(std::string const& message) noexcept
   : msg(message) {}

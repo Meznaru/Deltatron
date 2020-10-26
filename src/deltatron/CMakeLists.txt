@@ -3,9 +3,8 @@ add_executable("deltatron")
 target_link_libraries(deltatron
   PRIVATE
     cmake_metatarget
-    json
     system
-    gpu)
+    json)
 
 target_include_directories(deltatron
   PRIVATE
@@ -14,6 +13,5 @@ target_include_directories(deltatron
 target_sources(deltatron
   PRIVATE
     "include/private/dt/deltatron.hh"
-
     "src/dt/deltatron.cc"
     "src/dt/main.cc")
