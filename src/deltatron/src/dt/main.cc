@@ -19,7 +19,7 @@ int main(int ac, char const** av, char const** ep) {
     std::cerr << "std::exception: " << e.what() << std::endl;
 
   } catch (char const* cstr) {
-    std::cerr << "error: " << cstr << std::endl;
+    std::cerr << "C string caught by main: " << cstr << std::endl;
 
   } catch (...) {
     std::cerr << "error: unknown type caught in main" << std::endl;
