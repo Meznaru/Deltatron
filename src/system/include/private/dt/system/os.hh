@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <dt/system/platform/os_id.hh>
+#include <dt/system/os/os_id.hh>
 
 namespace dt {
 

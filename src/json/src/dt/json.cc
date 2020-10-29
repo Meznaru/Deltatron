@@ -9,13 +9,12 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <string_view>
 #include <variant>
 
 #include <cstddef>
 
-dt::json::json(std::string id, std::string_view data)
-: _json(std::make_unique<json_imp>(id, data)) {}
+dt::json::json(std::string const& id, std::string const& data)
+: _json(std::make_unique<json_imp>(id, data.data())) {}
 
 dt::json::~json() noexcept {}
 
@@ -44,7 +43,7 @@ std::optional<std::string> dt::json_container::string_at(std::string const& k) c
 { return _container.value_at<std::string>(k); }
 
 std::optional<dt::json_container> dt::json_container::container_at(std::string const& k) const noexcept {
-  if (auto con{_container.container_at(k)}; con)
+  if (json_container_imp const* con{_container.container_at(k)}; con)
     return json_container(*con);
 
   return std::nullopt;

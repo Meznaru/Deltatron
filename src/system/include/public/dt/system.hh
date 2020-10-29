@@ -7,7 +7,7 @@
 
 #include <dt/system/filesystem/directory.hh>
 
-#include <dt/system/platform/os_id.hh>
+#include <dt/system/os/os_id.hh>
 
 #include <memory>
 #include <optional>
@@ -37,7 +37,7 @@ public:
   system(system&)  = delete;
   system(system&&) = delete;
 
-  system operator=(system)    = delete;
+  system  operator=(system)   = delete;
   system& operator=(system&&) = delete;
 }; // class system
 

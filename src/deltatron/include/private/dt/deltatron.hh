@@ -3,6 +3,7 @@
 #pragma once
 
 #include <dt/system.hh>
+#include <dt/json.hh>
 
 namespace dt {
 

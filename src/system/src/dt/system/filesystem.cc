@@ -59,18 +59,6 @@ std::optional<dt::directory> dt::directory::parent() const noexcept {
 std::string dt::directory::name() const noexcept
 { return _parent ? fs::path(_path).filename().string() : "root"; }
 
-dt::directory dt::directory::mkdir(std::string const& name) const {
-  fs::path p(fs::path(_path) / name);
-
-  if (!fs::exists(p))
-    fs::create_directory(p);
-
-  else if (!fs::is_directory(p))
-    throw std::runtime_error(name + ": not a directory");
-
-  return *this;
-}
-
 dt::directory dt::directory::chdir(std::string const& name) const {
   fs::path p(fs::path(_path) / name);
 
@@ -83,12 +71,47 @@ dt::directory dt::directory::chdir(std::string const& name) const {
   return directory(p.string(), this);
 }
 
-std::optional<std::string> dt::directory::fload(std::string const& name) const {
-  if (std::ifstream ifs(fs::path(_path) / name, std::ios::binary | std::ios::ate); ifs.is_open()) {
-    std::string fdata(std::string::size_type(ifs.tellg()), 0);
-    return std::move((ifs.seekg(0), ifs.read(fdata.data(), std::streamsize(fdata.size())), fdata));
-  } return std::nullopt;
+dt::directory dt::directory::mkdir(std::string const& name) const {
+  fs::path p(fs::path(_path) / name);
+
+  if (!fs::exists(p))
+    fs::create_directory(p);
+
+  else if (!fs::is_directory(p))
+    throw std::runtime_error(name + ": not a directory");
+
+  return *this;
 }
 
-void dt::directory::fwrite(std::string const& name, std::string_view data) const
-{ std::ofstream(fs::path(_path) / name, std::ios::binary | std::ios::trunc).write(data.data(), std::streamsize(data.size())); }
+std::optional<dt::file> dt::directory::fload(std::string const& name) const {
+  if (std::ifstream ifs(fs::path(_path) / name, std::ios::binary | std::ios::ate); ifs.is_open()) {
+    std::string fdata(static_cast<std::string::size_type>(ifs.tellg()), 0);
+
+    ifs.seekg(0);
+    ifs.read(fdata.data(), static_cast<std::streamsize>(fdata.size()));
+
+    return file(name, std::move(fdata));
+  }
+
+  return std::nullopt;
+}
+
+dt::file dt::directory::fload(std::string const& name, std::string_view default_data) const {
+  if (std::ifstream ifs(fs::path(_path) / name, std::ios::binary | std::ios::ate); ifs.is_open()) {
+    std::string fdata(static_cast<std::string::size_type>(ifs.tellg()), 0);
+
+    ifs.seekg(0);
+    ifs.read(fdata.data(), static_cast<std::streamsize>(fdata.size()));
+
+    return file(name, std::move(fdata));
+  }
+
+  fwrite(name, default_data);
+
+  return fload(name).value();
+}
+
+void dt::directory::fwrite(std::string const& name, std::string_view data) const {
+  std::ofstream(fs::path(_path) / name, std::ios::binary | std::ios::trunc)
+    .write(data.data(), static_cast<std::streamsize>(data.size()));
+}

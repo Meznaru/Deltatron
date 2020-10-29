@@ -19,6 +19,7 @@ target_sources(json
     "include/private/dt/json/parser/lexer.hh"
     "include/private/dt/json/parser/semantic_analysis.hh"
     "include/private/dt/json/parser.hh"
+    "include/public/dt/json/error.hh"
     "include/private/dt/json_imp.hh"
     "include/public/dt/json.hh"
     "src/dt/json.cc")

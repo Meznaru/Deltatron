@@ -3,11 +3,11 @@
 #pragma once
 
 #include <dt/json/container/value.hh>
+#include <dt/json/error.hh>
 
 #include <charconv>
 #include <iostream>
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -17,6 +17,8 @@
 namespace dt {
 
 class json_lexer final {
+
+  friend json_stream_t create_token_stream(std::string const& id, std::string_view data);
 
   class lexer_pos final {
     char const* _end;
@@ -60,8 +62,6 @@ public:
     for (json_lexer lx(id, data); !lx._done(); ++lx)
       lx._append_token(stream);
 
-    _print_stream(id, stream);
-
     return stream;
   }
 
@@ -86,10 +86,10 @@ private:
     else if (auto const opt_str{_is_string()}; opt_str)
       ts.push_back({json_t::String , _line, opt_str.value()});
 
-    else if (auto const opt_int{_is_number<int>()}; opt_int)
+    else if (auto const opt_int{_is_integer()}; opt_int)
       ts.push_back({json_t::Integer, _line, opt_int.value()});
 
-    else if (auto const opt_float{_is_number<float>()}; opt_float)
+    else if (auto const opt_float{_is_float()}; opt_float)
       ts.push_back({json_t::Float, _line, opt_float.value()});
 
     else if (_contains_charseq("true"))
@@ -101,7 +101,7 @@ private:
     else if(_contains_charseq("null"))
       ts.push_back({json_t::Null, _line});
 
-    else throw std::runtime_error(_id + ": unknown value at line " + std::to_string(_line));
+    else throw json_error(_id, _line, "unknown value");
   }
 
   constexpr bool _is_keychar() const noexcept {
@@ -126,14 +126,12 @@ private:
         ++_pos;
 
     if (_pos.eof())
-      throw std::runtime_error(
-        _id + ": encountered end of file during string evaluation at line " + std::to_string(_line));
+      throw json_error(_id, _line, "encountered end of file during string evaluation");
 
     return std::string(begin, &_pos);
   }
 
-  template <typename NumT>
-  std::optional<NumT> _is_number() noexcept {
+  constexpr std::optional<int> _is_integer() noexcept {
     if (char const c{*_pos}; c > '9' || (c < '0' && c != '.' && c != '-'))
       return std::nullopt;
 
@@ -141,8 +139,30 @@ private:
     for (char c{*fw}; c > ' ' && c != ',' && c != '}' && c != ']' && !fw.eof();)
       (++fw, c = *fw);
 
-    if (NumT num; std::from_chars(&_pos, &fw, num).ec != std::errc())
-      return (_pos = &fw - 1, num);
+
+    if (int i; std::from_chars(&_pos, &fw, i).ec == std::errc())
+      return (_pos = &fw - 1, i);
+
+    return std::nullopt;
+  }
+
+  constexpr std::optional<float> _is_float() noexcept {
+    if (char const c{*_pos}; c > '9' || (c < '0' && c != '.' && c != '-'))
+      return std::nullopt;
+
+    lexer_pos fw(_pos);
+    for (char c{*fw}; c > ' ' && c != ',' && c != '}' && c != ']' && !fw.eof();)
+      (++fw, c = *fw);
+
+  // GNU GCC does not support floating-point from_chars overloads as of Oct. 2020
+#if defined(__GNUC__)
+    try { return std::stof(std::string(&_pos, &fw)); } catch (...) { return std::nullopt; }
+
+#else
+    if (float f; std::from_chars(&_pos, &fw, f).ec == std::errc())
+      return (_pos = &fw - 1, f);
+
+#endif
 
     return std::nullopt;
   }
@@ -153,46 +173,22 @@ private:
   constexpr json_t _char_to_token(char c) { return static_cast<json_t>(c); }
 
   static void _print_stream(std::string const& id, json_stream_t const& ts) {
-
     std::cout << "json data stream for \"" + id + "\":\n";
 
     for (auto const& t : ts)
       switch (t.type()) {
-        case json_t::String:
-          std::cout << "\tstring:" << t.opt_val<std::string>().value() << "\n";
-          break;
-        case json_t::Integer:
-          std::cout << "\tinteger:" << t.opt_val<int>().value() << "\n";
-          break;
-        case json_t::Float:
-          std::cout << "\tfloat:" << t.opt_val<float>().value() << "\n";
-          break;
-        case json_t::Bool:
-          std::cout << "\tbool:" << t.opt_val<bool>().value() << "\n";
-          break;
-        case json_t::LBrace:
-          std::cout << "\tLBrace:'{'\n";
-          break;
-        case json_t::RBrace:
-          std::cout << "\tRBrace:'}'\n";
-          break;
-        case json_t::LBrack:
-          std::cout << "\tLBrack:'['\n";
-          break;
-        case json_t::RBrack:
-          std::cout << "\tRBrack:']'\n";
-          break;
-        case json_t::Comma:
-          std::cout << "\tComma:','\n";
-          break;
-        case json_t::Colon:
-          std::cout << "\tColon:':'\n";
-          break;
-        case json_t::Null:
-          std::cout << "\tNull:'null'\n";
-          break;
-        default:
-          std::cout << "";
+        case json_t::String:  std::cout << "\tstring:"  << t.opt_val<std::string>().value() << "\n"; break;
+        case json_t::Integer: std::cout << "\tinteger:" << t.opt_val<int>().value()         << "\n"; break;
+        case json_t::Float:   std::cout << "\tfloat:"   << t.opt_val<float>().value()       << "\n"; break;
+        case json_t::Bool:    std::cout << "\tbool:"    << t.opt_val<bool>().value()        << "\n"; break;
+        case json_t::LBrace:  std::cout << "\tLBrace:'{'\n";  break;
+        case json_t::RBrace:  std::cout << "\tRBrace:'}'\n";  break;
+        case json_t::LBrack:  std::cout << "\tLBrack:'['\n";  break;
+        case json_t::RBrack:  std::cout << "\tRBrack:']'\n";  break;
+        case json_t::Comma:   std::cout << "\tComma:','\n";   break;
+        case json_t::Colon:   std::cout << "\tColon:':'\n";   break;
+        case json_t::Null:    std::cout << "\tNull:'null'\n"; break;
+        default:              std::cout << "";
       }
   }
 }; // class json_lexer

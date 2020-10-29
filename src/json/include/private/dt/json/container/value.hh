@@ -13,11 +13,14 @@ namespace dt {
 
 class json_lexer;
 
+class json_semantic_analysis;
+
 class json_value final {
 public:
   using value_t = std::optional<std::variant<std::string, float, int, bool>>;
 
   friend class ::dt::json_lexer;
+  friend class ::dt::json_semantic_analysis;
 
 private:
   json_t       _type;

@@ -13,12 +13,12 @@
 std::string dt::flag_database::gen_help_msg() const noexcept {
   std::stringstream hms{};
 
-  int name_maxlen = int(std::max_element(_db.begin(), _db.end(),
+  auto name_maxlen = static_cast<int>(std::max_element(_db.begin(), _db.end(),
     [](auto const& large, auto const& next)
     { return large.second.name.size() < next.second.name.size(); }
       )->second.name.size() + 1);
 
-  int descr_maxlen = int(std::max_element(_db.begin(), _db.end(),
+  auto descr_maxlen = static_cast<int>(std::max_element(_db.begin(), _db.end(),
     [](auto const& large, auto const& next)
     { return large.second.description.size() < next.second.description.size(); }
       )->second.description.size());
@@ -69,7 +69,7 @@ std::map<dt::flag_id, dt::flag_database::_flag_info> dt::flag_database::_gen_fla
     {
       flag_id::root_directory_name,
       {
-        .name        = "--root-directory-name",
+        .name        = "--root-dir-name",
         .description = "Sets the name of the root directory"
       }
     },
@@ -77,7 +77,7 @@ std::map<dt::flag_id, dt::flag_database::_flag_info> dt::flag_database::_gen_fla
     {
       flag_id::root_directory_location,
       {
-        .name        = "--root-directory-location",
+        .name        = "--root-dir-location",
         .description = "Sets the location the root directory resides in"
       }
     }

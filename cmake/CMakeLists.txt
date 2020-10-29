@@ -33,6 +33,11 @@ target_compile_options(cmake_metatarget
       "/w14928"        # illegal copy-initialization; more than one user-defined conversion has been implicitly applied
     >
 
+    $<$<CXX_COMPILER_ID:GNU>:
+      "-Wall"
+      "-std=c++20"
+    >
+
     $<$<CXX_COMPILER_ID:Clang>:
       "-save-temps"
       "-std=c++20"
@@ -184,7 +189,6 @@ target_compile_options(cmake_metatarget
       "-Wnullability-declspec"
       "-Wnullability-extension"
       "-Wnullable-to-nonnull-conversion"
-      "-Wold-style-cast"
       "-Wopenmp"
       "-Wover-aligned"
       "-Woverlength-strings"
@@ -274,4 +278,5 @@ target_compile_options(cmake_metatarget
       "-Wweak-vtables"
       "-Wwrite-strings"
       "-Wzero-as-null-pointer-constant"
-      "-Wzero-length-array">)
+      "-Wzero-length-array"
+    >)

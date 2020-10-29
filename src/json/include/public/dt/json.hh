@@ -3,10 +3,10 @@
 #pragma once
 
 #include <dt/json/container.hh>
+#include <dt/json/error.hh>
 
 #include <memory>
 #include <string>
-#include <string_view>
 
 namespace dt {
 
@@ -16,7 +16,7 @@ class json final {
   std::unique_ptr<json_imp> _json;
 
 public:
-  json(std::string id, std::string_view data);
+  json(std::string const& id, std::string const& data);
 
   ~json() noexcept;
 
